@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Codeforces Rating Notifier</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <h1>Subscribe for Codeforces Rating Updates</h1>
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Your Name" required /><br />
+    <input type="text" id="handle" placeholder="Codeforces Handle" required /><br />
+    <input type="email" id="email" placeholder="Your Email" required /><br />
+    <button type="submit">Subscribe</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtl0sxUXjbeODeTUXLDMqj49dhoXTsNBc",
+      authDomain: "codeforces-rating-update.firebaseapp.com",
+      projectId: "codeforces-rating-update"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    firebase.auth().signInAnonymously().then(() => {
+      document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const handle = document.getElementById('handle').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if (!name || !handle || !email) {
+          document.getElementById("message").innerText = "All fields are required.";
+          return;
+        }
+
+        try {
+          await db.collection("users").add({ name, handle, email, last_rating: 0 });
+          document.getElementById("message").innerText = "✅ Registered successfully!";
+        } catch (error) {
+          document.getElementById("message").innerText = "❌ Error: " + error.message;
+        }
+      });
+    }).catch((err) => {
+      document.getElementById("message").innerText = "Firebase auth error: " + err.message;
+    });
+  </script>
+</body>
+</html>
